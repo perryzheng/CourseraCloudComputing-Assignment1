@@ -4,6 +4,13 @@ https://www.coursera.org/course/cloudcomputing
 
 Took a while to import this into eclipse. Steps:
 
+You must have gcc 4.7 installed. And since the Xcode uses 4.2 you don't want to overwrite that. Install it via homebrew or mac ports. I used mac ports:
+
+sudo port selfupdate
+sudo port install gcc47
+(takes > 1 hour to install)
+They are installed to /opt/local/bin/gcc++-mp-4.7 and /opt/local/bin/gcc-mp-4.7.
+
 1. Create an eclipse c++ project 
 2. Right click src and import, choose General -> File system. Choose the assignment folder. 
 3. Right click project -> Properties -> C/C++ build -> Settings, for 
@@ -13,3 +20,7 @@ GCC C Compiler, change gcc to /opt/local/bin/gcc-mp-4.7
 In GCC C++ Compiler -> Miscellaneous, append -std=c++11
 In GCC C compiler -> Miscellaneous, append -std=gnu11
 5. Clean, build 
+
+The /opt/local/bin/gcc comes from
+
+
