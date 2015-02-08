@@ -1,0 +1,15 @@
+Assignment one for Coursera's cloud computing course
+
+https://www.coursera.org/course/cloudcomputing
+
+Took a while to import this into eclipse. Steps:
+
+1. Create an eclipse c++ project 
+2. Right click src and import, choose General -> File system. Choose the assignment folder. 
+3. Right click project -> Properties -> C/C++ build -> Settings, for 
+MacOS X C++ Linker, change g++ to /opt/local/bin/g++-mp-4.7
+GCC C++ Compiler, change g++ to /opt/local/bin/g++-mp-4.7
+GCC C Compiler, change gcc to /opt/local/bin/gcc-mp-4.7
+In GCC C++ Compiler -> Miscellaneous, append -std=c++11
+In GCC C compiler -> Miscellaneous, append -std=gnu11
+5. Clean, build 

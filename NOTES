@@ -1,0 +1,31 @@
+-std=c++11
+-std=gnu11
+/opt/local/bin/g++-mp-4.7
+/opt/local/bin/gcc-mp-4.7
+
+
+#include <iostream>
+#include <sstream>
+#include <vector>
+using namespace std;
+
+int main() {
+	stringstream version;
+	version << "GCC version: "
+			<< __GNUC__ << "." << __GNUC_MINOR__ << ".";
+
+	cout << version.str() << endl;
+	return 0;
+}
+
+#include <iostream>
+using namespace std;
+
+int main() {
+	cout << "!!!Hello World!!!" << endl; // prints !!!Hello World!!!
+	return 0;
+}
+
+
+perrys-air:Coursera perryz$ sudo port install automake autoconf libtool
+
