@@ -21,6 +21,8 @@ In GCC C++ Compiler -> Miscellaneous, append -std=c++11
 In GCC C compiler -> Miscellaneous, append -std=gnu11
 5. Clean, build 
 
-The /opt/local/bin/gcc comes from
+The /opt/local/bin/gcc comes from the C version
+
+
 
 

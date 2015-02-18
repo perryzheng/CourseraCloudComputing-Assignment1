@@ -29,3 +29,6 @@ int main() {
 
 perrys-air:Coursera perryz$ sudo port install automake autoconf libtool
 
+Need to implement nodeLoopOps and recvCallBack(), and finishUpThisNode
+
+Don't need to implement recvLoop. 
