@@ -215,9 +215,80 @@ void MP1Node::checkMessages() {
  * DESCRIPTION: Message handler for different message types
  */
 bool MP1Node::recvCallBack(void *env, char *data, int size ) {
-	/*
-	 * Your code goes here
-	 */
+	MessageHdr *msg = (MessageHdr *) data;
+
+	switch (msg->msgType) {
+		case JOINREQ:
+			cout << "hello world" << endl;
+			handleJoinReq(env, data, size);
+			break;
+	}
+
+	return true;
+}
+
+/**
+ * This handles the join request by sending a JOINREP back to the sender
+ *
+ * incoming data is of the format [address, heartbeat]
+ * the response data sent back to the sender would be a serialized version of the members in this node's membership table
+ */
+void MP1Node::handleJoinReq(void *env, char *data, int size) {
+#ifdef DEBUGLOG
+    static char s[1024];
+#endif
+    Address destination = getAddress(data);
+
+	MessageHdr *response;
+
+	string serializedNode = serialize((Member *)env);
+	char *newData = stringToCharArray(serializedNode);
+
+    size_t responseSize = sizeof(MessageHdr) + sizeof(newData);
+    cout << "responseSize: " << responseSize << endl;
+	response = (MessageHdr *) malloc(responseSize * sizeof(char));
+
+    response->msgType = JOINREP;
+    memcpy((char *)(response + 1), newData, sizeof(newData));
+
+#ifdef DEBUGLOG
+	sprintf(s, "Sending response back to the sender...");
+	log->LOG(&memberNode->addr, s);
+#endif
+
+	// send JOINREQ message to introducer member
+	emulNet->ENsend(&memberNode->addr, &destination, (char *)response, responseSize);
+}
+
+/**
+ * Serialize this node in string form
+ */
+string MP1Node::serialize(Member *node) {
+	return "hello world";
+}
+
+/**
+ * Get size of the address
+ */
+size_t MP1Node::getAddressSize() {
+	Address address;
+	return sizeof(address.addr);
+}
+
+char* MP1Node::stringToCharArray(string s) {
+	char *a = new char[s.size() + 1];
+	a[s.size()] = 0;
+	memcpy(a, s.c_str(), s.size());
+	return a;
+}
+
+/**
+ * Get address from the data. Assume first 6 bytes of the data are the address
+ */
+Address MP1Node::getAddress(char *data) {
+	Address address;
+	memcpy(address.addr, data, sizeof(address.addr));
+	return address;
 }
 
 /**
@@ -228,11 +299,6 @@ bool MP1Node::recvCallBack(void *env, char *data, int size ) {
  * 				Propagate your membership list
  */
 void MP1Node::nodeLoopOps() {
-
-	/*
-	 * Your code goes here
-	 */
-
     return;
 }
 

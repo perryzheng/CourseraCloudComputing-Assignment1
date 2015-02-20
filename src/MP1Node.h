@@ -14,6 +14,7 @@
 #include "Member.h"
 #include "EmulNet.h"
 #include "Queue.h"
+#include <string.h>
 
 /**
  * Macros
@@ -55,6 +56,12 @@ private:
 	Params *par;
 	Member *memberNode;
 	char NULLADDR[6];
+
+	void handleJoinReq(void *env, char *data, int size);
+	size_t getAddressSize();
+	Address getAddress(char *data);
+	string serialize(Member *node);
+	char* stringToCharArray(string s);
 
 public:
 	MP1Node(Member *, Params *, EmulNet *, Log *, Address *);
