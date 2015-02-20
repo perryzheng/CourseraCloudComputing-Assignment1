@@ -219,7 +219,6 @@ bool MP1Node::recvCallBack(void *env, char *data, int size ) {
 
 	switch (msg->msgType) {
 		case JOINREQ:
-			cout << "hello world" << endl;
 			handleJoinReq(env, data, size);
 			break;
 	}
@@ -237,7 +236,7 @@ void MP1Node::handleJoinReq(void *env, char *data, int size) {
 #ifdef DEBUGLOG
     static char s[1024];
 #endif
-    Address destination = getAddress(data);
+    //Address destination = getAddress(data);
 
 	MessageHdr *response;
 
@@ -245,14 +244,24 @@ void MP1Node::handleJoinReq(void *env, char *data, int size) {
 	char *newData = stringToCharArray(serializedNode);
 
     size_t responseSize = sizeof(MessageHdr) + sizeof(newData);
+    cout << "how big is MessageHdr: " << sizeof(MessageHdr) << endl;  // size of the enum, which is stored in int, which is 4 bytes
     cout << "responseSize: " << responseSize << endl;
+
+    MessageHdr *msg = (MessageHdr *)data;
+    char *packetData = (char *)(msg + 1); // this is equivalent to moving 4 bytes since it's moving by one MessageHdr which is 4 bytes
+
 	response = (MessageHdr *) malloc(responseSize * sizeof(char));
 
     response->msgType = JOINREP;
     memcpy((char *)(response + 1), newData, sizeof(newData));
 
+    Address destination;
+    memcpy(destination.addr, (data + sizeof(MessageHdr)), 6);
+
+    printAddress(&destination);
+    printAddress(&memberNode->addr);
 #ifdef DEBUGLOG
-	sprintf(s, "Sending response back to the sender...");
+	sprintf(s, "Acknowledged sender %s's request. Sending response back to the sender...", getAddressStr(&destination));
 	log->LOG(&memberNode->addr, s);
 #endif
 
@@ -264,7 +273,7 @@ void MP1Node::handleJoinReq(void *env, char *data, int size) {
  * Serialize this node in string form
  */
 string MP1Node::serialize(Member *node) {
-	return "hello world";
+	return "serializing!";
 }
 
 /**
@@ -344,4 +353,11 @@ void MP1Node::printAddress(Address *addr)
 {
     printf("%d.%d.%d.%d:%d \n",  addr->addr[0],addr->addr[1],addr->addr[2],
                                                        addr->addr[3], *(short*)&addr->addr[4]) ;    
+}
+
+char* MP1Node::getAddressStr(Address *addr) {
+	char *res = NULL;
+	asprintf(&res, "%d.%d.%d.%d:%d", addr->addr[0],addr->addr[1],addr->addr[2],
+			addr->addr[3], *(short*)&addr->addr[4]);
+	return res;
 }

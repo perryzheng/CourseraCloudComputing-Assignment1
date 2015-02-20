@@ -60,6 +60,7 @@ private:
 	void handleJoinReq(void *env, char *data, int size);
 	size_t getAddressSize();
 	Address getAddress(char *data);
+	char* getAddressStr(Address *addr);
 	string serialize(Member *node);
 	char* stringToCharArray(string s);
 
