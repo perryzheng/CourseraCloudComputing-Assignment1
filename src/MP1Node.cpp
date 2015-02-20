@@ -216,10 +216,13 @@ void MP1Node::checkMessages() {
  */
 bool MP1Node::recvCallBack(void *env, char *data, int size ) {
 	MessageHdr *msg = (MessageHdr *) data;
+	char *realData = (char *)(msg + 1); // don't need the MessageHdr struct which just contains the msgType
 
 	switch (msg->msgType) {
 		case JOINREQ:
-			handleJoinReq(env, data, size);
+			handleJoinReq(env, realData, size);
+			break;
+		default:
 			break;
 	}
 
@@ -227,45 +230,35 @@ bool MP1Node::recvCallBack(void *env, char *data, int size ) {
 }
 
 /**
- * This handles the join request by sending a JOINREP back to the sender
+ * This handles the join request by sending a JOINREP back to the sender.
+ * Because initially all the join requests are sent to the introducer (node 1.0.0.0:0),
+ * this acknowledgment is usually done by the introducer.
  *
- * incoming data is of the format [address, heartbeat]
+ * incoming data is of the format [messsagehdr, address, heartbeat]
  * the response data sent back to the sender would be a serialized version of the members in this node's membership table
  */
 void MP1Node::handleJoinReq(void *env, char *data, int size) {
 #ifdef DEBUGLOG
     static char s[1024];
 #endif
-    //Address destination = getAddress(data);
-
+    Address destination = getAddress(data); // the destination of this emulated send is actually the source (the sender)
 	MessageHdr *response;
 
 	string serializedNode = serialize((Member *)env);
 	char *newData = stringToCharArray(serializedNode);
 
     size_t responseSize = sizeof(MessageHdr) + sizeof(newData);
-    cout << "how big is MessageHdr: " << sizeof(MessageHdr) << endl;  // size of the enum, which is stored in int, which is 4 bytes
-    cout << "responseSize: " << responseSize << endl;
-
-    MessageHdr *msg = (MessageHdr *)data;
-    char *packetData = (char *)(msg + 1); // this is equivalent to moving 4 bytes since it's moving by one MessageHdr which is 4 bytes
 
 	response = (MessageHdr *) malloc(responseSize * sizeof(char));
-
     response->msgType = JOINREP;
     memcpy((char *)(response + 1), newData, sizeof(newData));
 
-    Address destination;
-    memcpy(destination.addr, (data + sizeof(MessageHdr)), 6);
-
-    printAddress(&destination);
-    printAddress(&memberNode->addr);
 #ifdef DEBUGLOG
 	sprintf(s, "Acknowledged sender %s's request. Sending response back to the sender...", getAddressStr(&destination));
 	log->LOG(&memberNode->addr, s);
 #endif
 
-	// send JOINREQ message to introducer member
+	// send JOINREP back to the sender
 	emulNet->ENsend(&memberNode->addr, &destination, (char *)response, responseSize);
 }
 

@@ -32,3 +32,13 @@ perrys-air:Coursera perryz$ sudo port install automake autoconf libtool
 Need to implement nodeLoopOps and recvCallBack(), and finishUpThisNode
 
 Don't need to implement recvLoop. 
+
+    cout << "how big is MessageHdr: " << sizeof(MessageHdr) << endl;  // size of the enum, which is stored in int, which is 4 bytes
+    cout << "responseSize: " << responseSize << endl;
+    MessageHdr *msg = (MessageHdr *)data;
+    char *packetData = (char *)(msg + 1); // this is equivalent to moving 4 bytes since it's moving by one MessageHdr which is 4 bytes
+
+    printAddress(&destination);
+    printAddress(&memberNode->addr);
+
+    
