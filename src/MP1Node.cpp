@@ -6,6 +6,7 @@
  **********************************/
 
 #include "MP1Node.h"
+#include <sstream>
 
 /*
  * Note: You can change/add any functions in MP1Node.{h,cpp}
@@ -254,7 +255,8 @@ void MP1Node::handleJoinReq(void *env, char *data, int size) {
     memcpy((char *)(response + 1), newData, sizeof(newData));
 
 #ifdef DEBUGLOG
-	sprintf(s, "Acknowledged sender %s's request. Sending response back to the sender...", getAddressStr(&destination));
+	//sprintf(s, "Acknowledged sender %s's request. Sending response back to the sender...", getAddressStr(&destination));
+    sprintf(s, "Acknowledged sender %s's request. Sending response back to the sender..", destination.getAddress().c_str());
 	log->LOG(&memberNode->addr, s);
 #endif
 
