@@ -64,7 +64,7 @@ private:
 	string serialize(Member *node);
 	char* stringToCharArray(string s);
 	void addToMembershipList(Address addr, long heartbeat);
-	vector<MemberListEntry>::iterator findEntryInMembershipList(Address address);
+	vector<MemberListEntry>::iterator findInList(Address address);
 	int getid(Address address);
 
 public:

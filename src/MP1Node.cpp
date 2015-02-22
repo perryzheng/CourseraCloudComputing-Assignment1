@@ -267,7 +267,7 @@ void MP1Node::handleJoinReq(void *env, char *data, int size) {
 
 	// if it hasn't joined yet, add it to the membership list
 	vector<MemberListEntry>::iterator it;
-	it = findEntryInMembershipList(destination);
+	it = findInList(destination);
 	if (it == memberNode->memberList.end()) {
 		long heartbeat;
 		memcpy(&heartbeat, data + 1 + getAddressSize(), sizeof(long));
@@ -275,12 +275,10 @@ void MP1Node::handleJoinReq(void *env, char *data, int size) {
 	}
 }
 
-vector<MemberListEntry>::iterator MP1Node::findEntryInMembershipList(Address address) {
+vector<MemberListEntry>::iterator MP1Node::findInList(Address address) {
 	int id = getid(address);
-	cout << "id: " << id << endl;
 	vector<MemberListEntry>::iterator it;
 	for (it = memberNode->memberList.begin(); it != memberNode->memberList.end(); it++) {
-		cout << "real id: " << (*(it)).getid() << endl;
 		if ( (*(it)).getid() == id) {
 			cout << "found!" << endl;
 			return it;
