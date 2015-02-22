@@ -109,6 +109,7 @@ int MP1Node::initThisNode(Address *joinaddr) {
 	memberNode->pingCounter = TFAIL;
 	memberNode->timeOutCounter = -1;
     initMemberListTable(memberNode);
+    addToMembershipList(memberNode->addr, memberNode->heartbeat);
 
     return 0;
 }
@@ -235,7 +236,7 @@ bool MP1Node::recvCallBack(void *env, char *data, int size ) {
  * Because initially all the join requests are sent to the introducer (node 1.0.0.0:0),
  * this acknowledgment is usually done by the introducer.
  *
- * incoming data is of the format [messsagehdr, address, heartbeat]
+ * incoming data is of the format [address, heartbeat]
  * the response data sent back to the sender would be a serialized version of the members in this node's membership table
  */
 void MP1Node::handleJoinReq(void *env, char *data, int size) {
@@ -246,22 +247,63 @@ void MP1Node::handleJoinReq(void *env, char *data, int size) {
 	MessageHdr *response;
 
 	string serializedNode = serialize((Member *)env);
-	char *newData = stringToCharArray(serializedNode);
+	char *responseData = stringToCharArray(serializedNode);
 
-    size_t responseSize = sizeof(MessageHdr) + sizeof(newData);
+    size_t responseSize = sizeof(MessageHdr) + sizeof(responseData);
 
 	response = (MessageHdr *) malloc(responseSize * sizeof(char));
     response->msgType = JOINREP;
-    memcpy((char *)(response + 1), newData, sizeof(newData));
+    memcpy((char *)(response + 1), responseData, sizeof(responseData));
 
 #ifdef DEBUGLOG
-	//sprintf(s, "Acknowledged sender %s's request. Sending response back to the sender...", getAddressStr(&destination));
     sprintf(s, "Acknowledged sender %s's request. Sending response back to the sender..", destination.getAddress().c_str());
 	log->LOG(&memberNode->addr, s);
 #endif
 
 	// send JOINREP back to the sender
 	emulNet->ENsend(&memberNode->addr, &destination, (char *)response, responseSize);
+	free(response);
+	free(responseData);
+
+	// if it hasn't joined yet, add it to the membership list
+	vector<MemberListEntry>::iterator it;
+	it = findEntryInMembershipList(destination);
+	if (it == memberNode->memberList.end()) {
+		long heartbeat;
+		memcpy(&heartbeat, data + 1 + getAddressSize(), sizeof(long));
+		addToMembershipList(destination, heartbeat);
+	}
+}
+
+vector<MemberListEntry>::iterator MP1Node::findEntryInMembershipList(Address address) {
+	int id = getid(address);
+	cout << "id: " << id << endl;
+	vector<MemberListEntry>::iterator it;
+	for (it = memberNode->memberList.begin(); it != memberNode->memberList.end(); it++) {
+		cout << "real id: " << (*(it)).getid() << endl;
+		if ( (*(it)).getid() == id) {
+			cout << "found!" << endl;
+			return it;
+		}
+	}
+	return it;
+}
+
+/**
+ * Add the node to the membership list
+ */
+void MP1Node::addToMembershipList(Address address, long heartbeat) {
+	// value of first int af addr is the id
+	int id = *(int *)(&address.addr);
+	short port = *(short *)(&address.addr[4]);
+
+	MemberListEntry mle(id, port, heartbeat, par->getcurrtime());
+	memberNode->memberList.emplace_back(mle);
+	log->logNodeAdd(&memberNode->addr, &address);
+}
+
+int MP1Node::getid(Address address) {
+	return *(int *)(&address.addr);
 }
 
 /**

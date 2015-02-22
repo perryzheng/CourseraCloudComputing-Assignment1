@@ -63,6 +63,9 @@ private:
 	char* getAddressStr(Address *addr);
 	string serialize(Member *node);
 	char* stringToCharArray(string s);
+	void addToMembershipList(Address addr, long heartbeat);
+	vector<MemberListEntry>::iterator findEntryInMembershipList(Address address);
+	int getid(Address address);
 
 public:
 	MP1Node(Member *, Params *, EmulNet *, Log *, Address *);
